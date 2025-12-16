@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema do Clube</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 50px;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 500px;
+            text-align: center;
+        }
+
+        h2, h3 {
+            margin-bottom: 10px;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .success {
+            color: green;
+            margin-top: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .lista {
+            margin-top: 10px;
+            padding-left: 15px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela Inicial -->
+    <div class="container" id="telaInicial">
+        <h2>Bem-vindo ao Sistema do Clube</h2>
+        <button onclick="mostrarCadastroClube()">Cadastrar Clube</button>
+        <button onclick="mostrarLogin()">Entrar no Login</button>
+    </div>
+
+    <!-- Cadastro do Clube -->
+    <div class="container hidden" id="cadastroClube">
+        <h2>Cadastro do Clube</h2>
+        <input type="text" id="nomeClube" placeholder="Nome do Clube">
+        <input type="text" id="diretoria" placeholder="Nome do Diretor(a)">
+        <input type="password" id="senha" placeholder="Senha do Clube">
+        <button onclick="cadastrarClube()">Cadastrar Clube</button>
+        <p class="success" id="msgClube"></p>
+        <button onclick="voltarTelaInicial('cadastroClube')">Voltar</button>
+    </div>
+
+    <!-- Login do Clube -->
+    <div class="container hidden" id="loginClube">
+        <h2>Login do Clube</h2>
+        <input type="text" id="loginNome" placeholder="Nome do Clube">
+        <input type="password" id="loginSenha" placeholder="Senha do Clube">
+        <button onclick="entrarClube()">Entrar</button>
+        <p class="success" id="msgLogin"></p>
+        <button onclick="voltarTelaInicial('loginClube')">Voltar</button>
+    </div>
+
+    <!-- Página do Clube -->
+    <div class="container hidden" id="paginaClube">
+        <h2>Página do Clube: <span id="nomeClubeDisplay"></span></h2>
+
+        <!-- Informações do clube -->
+        <h3>Informações do Clube</h3>
+        <input type="text" id="fundacao" placeholder="Fundação">
+        <input type="text" id="diretorPrincipal" placeholder="Diretor(a) Principal">
+        <input type="text" id="diretoresAssociados" placeholder="Diretores(as) Associados(as) (separados por vírgula)">
+
+        <!-- Botões de cadastro -->
+        <h3>Cadastros</h3>
+        <button onclick="abrirCadastroLider()">Cadastrar Liderança</button>
+        <button onclick="abrirCadastroDesbravador()">Cadastrar Desbravadores</button>
+
+        <!-- Listas -->
+        <h3>Liderança</h3>
+        <ul id="listaLideres" class="lista"></ul>
+
+        <h3>Desbravadores</h3>
+        <ul id="listaDesbravadores" class="lista"></ul>
+    </div>
+
+    <!-- Cadastro da Liderança -->
+    <div class="container hidden" id="cadastroLideranca">
+        <h2>Cadastro da Liderança</h2>
+        <input type="text" id="nomeLider" placeholder="Nome do Líder">
+        <input type="text" id="cargo" placeholder="Cargo">
+        <button onclick="cadastrarLider()">Cadastrar Liderança</button>
+        <p class="success" id="msgLider"></p>
+        <button onclick="voltarPaginaClube()">Voltar</button>
+    </div>
+
+    <!-- Cadastro de Desbravadores -->
+    <div class="container hidden" id="cadastroDesbravador">
+        <h2>Cadastro de Desbravadores</h2>
+        <input type="text" id="nomeDesbravador" placeholder="Nome do Desbravador">
+        <input type="text" id="idadeDesbravador" placeholder="Idade">
+        <button onclick="cadastrarDesbravador()">Cadastrar Desbravador</button>
+        <p class="success" id="msgDesbravador"></p>
+        <button onclick="voltarPaginaClube()">Voltar</button>
+    </div>
+
+    <script>
+        let clube = null;
+        let lideres = [];
+        let desbravadores = [];
+
+        // Mostrar telas
+        function mostrarCadastroClube() {
+            document.getElementById('telaInicial').classList.add('hidden');
+            document.getElementById('cadastroClube').classList.remove('hidden');
+        }
+
+        function mostrarLogin() {
+            document.getElementById('telaInicial').classList.add('hidden');
+            document.getElementById('loginClube').classList.remove('hidden');
+        }
+
+        function voltarTelaInicial(idTela) {
+            document.getElementById(idTela).classList.add('hidden');
+            document.getElementById('telaInicial').classList.remove('hidden');
+        }
+
+        // Cadastro do clube
+        function cadastrarClube() {
+            const nome = document.getElementById('nomeClube').value;
+            const diretor = document.getElementById('diretoria').value;
+            const senha = document.getElementById('senha').value;
+
+            if(nome === "" || diretor === "" || senha === "") {
+                alert("Preencha todos os campos!");
+                return;
+            }
+
+            clube = { nome, diretor, senha };
+            document.getElementById('msgClube').innerText = "Clube cadastrado com sucesso!";
+            console.log("Clube cadastrado:", clube);
+
+            mostrarPaginaClube();
+        }
+
+        // Login do clube
+        function entrarClube() {
+            const nome = document.getElementById('loginNome').value;
+            const senha = document.getElementById('loginSenha').value;
+
+            if(!clube) {
+                alert("Nenhum clube cadastrado ainda!");
+                return;
+            }
+
+            if(nome === clube.nome && senha === clube.senha) {
+                mostrarPaginaClube();
+            } else {
+                alert("Nome do clube ou senha incorretos!");
+            }
+        }
+
+        // Página do clube
+        function mostrarPaginaClube() {
+            document.getElementById('cadastroClube').classList.add('hidden');
+            document.getElementById('loginClube').classList.add('hidden');
+            document.getElementById('telaInicial').classList.add('hidden');
+            document.getElementById('paginaClube').classList.remove('hidden');
+
+            document.getElementById('nomeClubeDisplay').innerText = clube.nome;
+            document.getElementById('diretorPrincipal').value = clube.diretor;
+        }
+
+        // Cadastro da liderança
+        function abrirCadastroLider() {
+            document.getElementById('paginaClube').classList.add('hidden');
+            document.getElementById('cadastroLideranca').classList.remove('hidden');
+        }
+
+        function cadastrarLider() {
+            const nome = document.getElementById('nomeLider').value;
+            const cargo = document.getElementById('cargo').value;
+
+            if(nome === "" || cargo === "") {
+                alert("Preencha todos os campos!");
+                return;
+            }
+
+            lideres.push({ nome, cargo });
+            document.getElementById('msgLider').innerText = `Líder "${nome}" cadastrado!`;
+            atualizarListaLideres();
+
+            document.getElementById('nomeLider').value = "";
+            document.getElementById('cargo').value = "";
+        }
+
+        function atualizarListaLideres() {
+            const ul = document.getElementById('listaLideres');
+            ul.innerHTML = "";
+            lideres.forEach(l => {
+                const li = document.createElement('li');
+                li.textContent = `${l.nome} - ${l.cargo}`;
+                ul.appendChild(li);
+            });
+        }
+
+        // Cadastro de desbravadores
+        function abrirCadastroDesbravador() {
+            document.getElementById('paginaClube').classList.add('hidden');
+            document.getElementById('cadastroDesbravador').classList.remove('hidden');
+        }
+
+        function cadastrarDesbravador() {
+            const nome = document.getElementById('nomeDesbravador').value;
+            const idade = document.getElementById('idadeDesbravador').value;
+
+            if(nome === "" || idade === "") {
+                alert("Preencha todos os campos!");
+                return;
+            }
+
+            desbravadores.push({ nome, idade });
+            document.getElementById('msgDesbravador').innerText = `Desbravador "${nome}" cadastrado!`;
+            atualizarListaDesbravadores();
+
+            document.getElementById('nomeDesbravador').value = "";
+            document.getElementById('idadeDesbravador').value = "";
+        }
+
+        function atualizarListaDesbravadores() {
+            const ul = document.getElementById('listaDesbravadores');
+            ul.innerHTML = "";
+            desbravadores.forEach(d => {
+                const li = document.createElement('li');
+                li.textContent = `${d.nome}, ${d.idade} anos`;
+                ul.appendChild(li);
+            });
+        }
+
+        function voltarPaginaClube() {
+            document.getElementById('cadastroLideranca').classList.add('hidden');
+            document.getElementById('cadastroDesbravador').classList.add('hidden');
+            document.getElementById('paginaClube').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
